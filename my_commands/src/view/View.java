@@ -50,14 +50,8 @@ public interface View
 	 * @param solution - the maze solution to display
 	 * 
 	 */	
-	public void displayData(Solution solution)
+	public void displayData(Solution solution);
 	
-	/**
-	 * This function is responsible to display a string value we got as a parameter.
-	 * 
-	 * @param string - the string to display
-	 * 
-	 */	;
-	public void display(String string);
+
 
 }

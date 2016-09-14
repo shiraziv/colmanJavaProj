@@ -50,24 +50,37 @@ public class MyModel implements Model
 		
 	}
 	@Override
-	public String[] getDir(String path)
+	public void getDir(String path)
 	{
-		File f = new File(path);
-		return f.list();
+	File file = new File(path);
+	if(file.exists())
+	{
+		controller.displayData(new File(path).list());
+	}
+	else
+	{
+		controller.display("This dir is not exist");
+	}
 	}
 	@Override
 	public void generateMaze(String[] args)
 	{
 		if(args.length == 5)
 		{
-			String name = args[1];
-			int x,y,z;
-			z = Integer.parseInt(args[2]);
-			y = Integer.parseInt(args[3]);
-			x = Integer.parseInt(args[4]);
-			Maze3dGenerator m3dg= new SimpleMaze3dGenerator();
-			Maze3d maze = m3dg.generate(z, y, x);
-			this.keeperMazes.put(name, maze);
+			try {
+				String name = args[1];
+				int x,y,z;
+				z = Integer.parseInt(args[2]);
+				y = Integer.parseInt(args[3]);
+				x = Integer.parseInt(args[4]);
+				Maze3dGenerator m3dg= new SimpleMaze3dGenerator();
+				Maze3d maze = m3dg.generate(z, y, x);
+				this.keeperMazes.put(name, maze);
+				controller.display("maze "+name+" is ready");
+			} catch (NumberFormatException e) {
+				
+				controller.display("Invalid parameters.");
+			}
 		}
 			else
 				controller.display("generate_3d_maze command must contain 4 argument\n");	
@@ -81,11 +94,12 @@ public class MyModel implements Model
 	@Override
 	public int[][] getCross(String[] args)
 	{	
-		String index = args[1];
-		String name = args[2];
+
 		int[][] maze = null;
 		if(args.length == 3)
 		{
+			String index = args[1];
+			String name = args[2];
 			try{
 			switch (index) 
 			{
@@ -111,6 +125,8 @@ public class MyModel implements Model
 				controller.display("Invalid parameters.");
 				
 			}
+				
+			
 		}
 		else
 			controller.display("generate_3d_maze command must contain 3 argument\n");		
@@ -138,11 +154,9 @@ public class MyModel implements Model
 						out.write(mazeBytes);
 						out.flush();
 						out.close();
+					}catch (Exception e){ 
+						controller.display("general error");
 					}
-					catch (Exception e) 
-					{
-					}
-					
 					
 					FileOutputStream fos = new FileOutputStream(fileName);
 					fos.write(tempMaze.toByteArray());
@@ -155,65 +169,43 @@ public class MyModel implements Model
 						controller.display("general error");
 					}
 			}
-			else
-				controller.display("Unavailable maze!");	
+			else{
+				controller.display("you entered wrong maze or file");
+			}
+		}
+		else{
+			controller.display("save_maze command must contain 3 argument");	
 		}
 	}
 	@Override
 	public void loadMaze(String[] args)
 	{
-		InputStream in;
-	try {
-		in = new MyDecompressorInputStream(new FileInputStream(args[1]));
-		byte b[]=new byte[in.available()];
-		in.read(b);
-		in.close();
-		Maze3d loaded=new Maze3d(b);
-		keeperMazes.put(args[2], loaded);
-	} catch (Exception e) 
-	{
-		//return false;
+		if(args.length == 3)
+		{
+			String fileName  = args[1];
+			String mazeName = args[2];
+			InputStream in;
+		try {
+			in = new MyDecompressorInputStream(new FileInputStream(fileName));
+			byte b[]=new byte[9000];
+			in.read(b);
+			
+			Maze3d loaded=new Maze3d(b);
+			keeperMazes.put(mazeName, loaded);
+			controller.display(fileName + " loaded ");
+			in.close();
+			} catch (Exception e) {
+				controller.display("you entered wrong file or name");
+				
+			}
+		}
+
+		else{
+			controller.display("load_maze command must contain 3 argument ");
+			
+		}
 	}
-//return true;
-		
-	}
-//		if(args.length == 3)
-//		{
-//			String fileName = args[1];
-//			String mazeName = args[2];
-//			try{
-//				FileInputStream fos = new FileInputStream(fileName);
-//				byte [] buffer = new byte[fos.available()];
-//				
-////				int buffer = fos.read();
-//				
-//				//InputStream s = 
-////				if (fos.read(buffer)==-1)
-////				{
-//					Maze3d  tempMaze = new Maze3d(buffer);
-//					this.keeperMazes.put(fileName, tempMaze);
-//					controller.display(fileName + " maze loaded.");
-//					fos.close();
-////				}	
-////				else
-////				{
-////					controller.display("the requsted maze is too big!");
-////				}
-//			
-//			}
-//			catch (FileNotFoundException e) 
-//			{
-//				controller.display("wrong file path");
-//			} 
-//			catch (IOException e)
-//			{
-//				controller.display("general error");
-//			}
-//		}
-//		else
-//			controller.display("Missing parameters.");
-//		
-//		}
+
 	@Override
 	public void solve(String[] args)
 	{		

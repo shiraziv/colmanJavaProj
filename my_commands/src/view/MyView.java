@@ -61,13 +61,11 @@ public class MyView implements View
 			System.out.println(maze);
 
 		}
-		else 
+		else {
 			System.out.println("your data is not known maze");
+		}
 	}
 		
-	@Override
-	public void display(String string) {
-		System.out.println(string);
+		
 
-	}
 }

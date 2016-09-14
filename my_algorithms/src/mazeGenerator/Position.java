@@ -75,18 +75,24 @@ public class Position {
 	 * @return Position - the clear cell according to the index.
 	 */
 	public Position move(int i) {			
-		if(i == 0)
+		if(i == 0){
 			this.x++;
-		if(i == 1)
+		}
+		if(i == 1){
 			this.x--;
-		if(i == 2)
+		}
+		if(i == 2){
 			this.y++;
-		if(i == 3)
+		}
+		if(i == 3){
 			this.y--;
-		if(i == 4)
+		}
+		if(i == 4){
 			this.z++;
-		if(i == 5)
+		}
+		if(i == 5){
 			this.z--;
+		}
 		
 		Position newPos = new Position(z,y,x);
 		return newPos;

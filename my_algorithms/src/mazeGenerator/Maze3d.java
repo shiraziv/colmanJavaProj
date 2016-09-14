@@ -89,6 +89,7 @@ public class Maze3d  {
 		int randExitH = 0;
 		int randExitR = 0; 
 		int randExitM = 0 ;
+		//choosing right enter and exit position randomly
 		if (this.getHigh() != 1){
 			randEnterH = rand.nextInt(this.getHigh()) + 0;
 			while (randExitH > this.getHigh() )
@@ -115,41 +116,71 @@ public class Maze3d  {
 	 * @return String[] that represents all possible moves given a certain position.
 	 */
 	public String[] getPossibleMoves(Position p){
-		String [] s = new String[6];
+		String [] s = new String[6]; //represents an array with possibles directions
 		int x = p.getX();
 		int y= p.getY();
 		int z= p.getZ();
-		if (x==this.column-1 )
-			s[0]="wall";
-		else if(this.maze3d[z][y][x+1] == 1)
-			s[0]="wall";
-		else s[0]="clear";
-		if (y==this.row-1 )
+		//s[0] represents right direction
+		if (x == this.column-1 ){ 
+			s[0]="wall"; 
+		}
+		else if(this.maze3d[z][y][x+1] == 1){
+			 s[0]="wall";
+		}
+		else {
+			s[0]="clear";
+		}
+		// s[2] represents up direction
+		if (y == this.row-1 ){
 			s[2]="wall";
-		else if(this.maze3d[z][y+1][x] == 1)
-			s[2]="wall";
-		else s[2]="clear";
-		if (z==this.high-1 )
+		}
+		else if(this.maze3d[z][y+1][x] == 1){
+			 s[2]="wall";
+		}
+		else{
+			s[2]="clear";
+		}
+		// s[4] represents forward direction
+		if (z==this.high-1 ){
 			s[4]="wall";
-		else if(this.maze3d[z+1][y][x] == 1)
+		}
+		else if(this.maze3d[z+1][y][x] == 1){
 			s[4]="wall";
-		else s[4]="clear";
-		if (x==0)
-			s[1]="wall";
-		else if(this.maze3d[z][y][x-1] == 1)
-			s[1]="wall";
-		else s[1]="clear";
-		if (y==0)
-			s[3]="wall";
-		else if(this.maze3d[z][y-1][x] == 1)
-			s[3]="wall";
-		else s[3]="clear";
-		if (z==0)
-			s[5]="wall";
-		else if(this.maze3d[z-1][y][x] == 1)
-			s[5]="wall";
-		else s[5]="clear";
+		}
+		else{
+			s[4]="clear";
+		}
 		
+	    //f[1] represents left direction
+		if (x == 0){
+			s[1]="wall";
+		}
+		else if(this.maze3d[z][y][x-1] == 1){
+			s[1]="wall";
+		}
+		else{ 
+			s[1]="clear";
+		}
+		//f[3] represents down direction
+		if (y == 0){
+			s[3]="wall";
+		}
+		else if(this.maze3d[z][y-1][x] == 1){
+			s[3]="wall";
+		}
+		else{
+			s[3]="clear";
+			}
+		//f[5] represents previous direction
+		if (z == 0){
+			s[5]="wall";
+		}
+		else if(this.maze3d[z-1][y][x] == 1){
+			s[5]="wall";
+		}
+		else{
+			s[5]="clear";
+		}
 		return s;
 			
 		}
@@ -221,15 +252,24 @@ public class Maze3d  {
 	public Position getRandomCell(){
 		Random rand = new Random();
 		int z,y,x;
-		if(this.high==1)
+		if(this.high == 1){
 			z = 0;
-		else z = 0 + rand.nextInt(this.high-1);;
-		if(this.row==1)
+		}
+		else{
+			z = 0 + rand.nextInt(this.high-1);;
+		}
+		if(this.row == 1){
 			y = 0;
-		else y = 0 + rand.nextInt(this.row-1);
-		if(this.column==1)
+		}
+		else{
+			y = 0 + rand.nextInt(this.row-1);
+		}
+		if(this.column == 1){
 			x = 0;
-		else x = 0 + rand.nextInt(this.column-1);
+		}
+		else{
+			x = 0 + rand.nextInt(this.column-1);
+		}
 
 		Position p = new Position(z,y,x);
 		return p;

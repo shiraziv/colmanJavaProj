@@ -31,10 +31,10 @@ public class GrowingTreeGenerator extends Generator{
 	}
 		Random rand = new Random();
 		Maze3d maze = new Maze3d(h,r,c);
-		maze.fillWall();
+		maze.fillWall();// filing the maze with walls
 		Position currentCell = maze.getRandomCell();//getting a random open cell to start with
 		maze.erasePos(currentCell);	//marking the cell as visited
-		visited[currentCell.getZ()][currentCell.getY()][currentCell.getX()] = true;
+		visited[currentCell.getZ()][currentCell.getY()][currentCell.getX()] = true;//marked as visited
 		numOfVisitedCells++;
 		
 		while(numOfVisitedCells < totalCells)		//stops when we visited all the cells

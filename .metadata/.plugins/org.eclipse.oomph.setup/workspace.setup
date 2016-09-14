@@ -3,4 +3,6 @@
     xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
-    name="workspace"/>
+    name="workspace">
+  <stream href="profiles:/index#//@projectCatalogs[name='de.yatta.profiles']/@projects[@id='local-copy-of-epp-package-jee-1470052048468']/@streams[name='master']"/>
+</setup:Workspace>

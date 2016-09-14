@@ -51,7 +51,7 @@ public class MyController implements Controller
 	}
 	@Override
 	public void display(String string) {
-		// TODO Auto-generated method stub
+		view.displayData(string);
 		
 	}
 }

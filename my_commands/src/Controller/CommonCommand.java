@@ -42,7 +42,7 @@ public class CommonCommand
 		commands.put("display_cross_section", new DisplayCrossSection());
 		commands.put("save_maze", new SaveMaze());
 		commands.put("load_maze", new LoadMaze());
-		commands.put("solve", new Solve());
+		commands.put("solve_maze", new Solve());
 		commands.put("display_solution", new DisplaySolution());
 		commands.put("exit", new Exit());
 		
@@ -72,7 +72,7 @@ public class CommonCommand
 		menu.add("4. display_cross_section <index{X/Y/Z}> <name>");
 		menu.add("5. save_maze <name> <file name>");
 		menu.add("6. load_maze <file name> <name>");
-		menu.add("7. solve <name> <algorithm>");
+		menu.add("7. solve_maze <name> <algorithm>");
 		menu.add("8. display_solution <name>");
 		menu.add("9. exit");
 		return menu;
@@ -99,7 +99,12 @@ public class CommonCommand
 		 */
 		public void doCommand(String[] args) 
 		{
-			view.displayData(model.getDir(args[1]));	
+			if(args.length == 2){
+				model.getDir(args[1]);
+			}
+			else{
+				view.displayData("Invalid parameter");
+			}
 		}	
 	}
 	/**
@@ -122,7 +127,6 @@ public class CommonCommand
 		    @Override
 		    public void run() {
 		    	model.generateMaze(args);
-				view.displayData("maze "+args[1]+" is ready");
 		    }
 		  });
 		  threads.add(t);
@@ -163,8 +167,15 @@ public class CommonCommand
 		@Override
 		public void doCommand(String[] args) 
 		{
-			view.displayData(model.getCross(args));
-		}
+			int [][] array = model.getCross(args);
+			if (array != null){
+				view.displayData(array);
+			}
+			else {
+				view.displayData("you entered a wrong argument\n");
+			}
+		
+	}
 	}
 	/**
 	 * @file CommonCommand.java

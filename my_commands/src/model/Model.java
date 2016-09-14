@@ -19,7 +19,7 @@ public interface Model
 	 * @param path- users' path choice.
 	 *
 	 */
-	public String[] getDir(String path);
+	public void getDir(String path);
 	/**
 	 * This function is responsible on generating 3d maze.
 	 * 

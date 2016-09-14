@@ -4,6 +4,7 @@ import mazeGenerator.*;
 import search.*;
 /**
  * @file  Demo.java
+
  * 
  * @author 	Shira Ziv
  * 
