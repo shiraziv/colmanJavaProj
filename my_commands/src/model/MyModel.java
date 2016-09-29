@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.text.Position;
 
 import Controller.Controller;
 import io.MyCompressorOutputStream;
@@ -40,15 +43,8 @@ public class MyModel implements Model
 	private Controller controller;
 	private HashMap<String, Maze3d> keeperMazes = new HashMap<String,Maze3d>();
 	private HashMap<String, Solution> solutions = new HashMap<String,Solution>();
-	/**
-	 * Constractor
-	 * @param c- a controller.
-	 */
-	public MyModel(Controller c)
-	{
-		this.controller = c;
-		
-	}
+	private ArrayList<Thread> threads = new ArrayList<Thread>();
+
 	@Override
 	public void getDir(String path)
 	{
@@ -243,6 +239,39 @@ public class MyModel implements Model
 	@Override
 	public Solution getSolution(String name) 
 	{
-		return this.solutions.get(name);
+		if(name != null)
+		{
+			if (keeperMazes.containsKey(name)){
+				Solution<Position> sol= solutions.get(name);
+				if(sol!=null)
+					return sol;
+				else{
+					controller.display("ERROR: there is no solution yet");
+					return null;
+				}
+			}
+		else{
+			controller.display("ERROR: the maze doesn't exits");
+			return null;
+		}
+	}
+	else{
+		controller.display("Error: the maze name is empty");
+		return null;
+	}
+	}
+	public void exit() {
+		for(Thread t : threads)
+		{
+			try {
+				t.join();
+			} catch (InterruptedException e) {
+			}
+		}
+		
+	}
+	@Override
+	public void setController(Controller controller) {
+		this.controller = controller;
 	}
 }

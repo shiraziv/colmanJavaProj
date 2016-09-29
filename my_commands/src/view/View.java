@@ -1,7 +1,12 @@
 package view;
 
+import java.io.IOException;
+import java.util.HashMap;
+
+import Controller.Controller;
 import mazeGenerator.Maze3d;
 import search.Solution;
+import Controller.Command;
 
 /**
  * @file View.java
@@ -20,11 +25,7 @@ public interface View
 	 * @param str-the string array to display
 	 */
 	public void displayData(String[] str);
-	/**
-	 * This function is responsible to get user command and forward it to the controller and to display it.
-	 *
-	 */
-	public void getUserCommand();
+
 	/**
 	 * This function is responsible to display a string to the out stream 
 	 * 
@@ -51,7 +52,15 @@ public interface View
 	 * 
 	 */	
 	public void displayData(Solution solution);
+	/**
+	 * This function start cli start method
+	 * @throws IOException 
+	 * 
+	 */	
+	public void start() throws IOException;	
 	
-
+	void setController(Controller controller);
+	
+	void setCommands(HashMap<String, Command> commands);
 
 }

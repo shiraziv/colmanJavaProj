@@ -1,28 +1,43 @@
 package view;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
-
+import java.util.HashMap;
 
 import mazeGenerator.Maze3d;
 import search.Solution;
+import Controller.Command;
 import Controller.Controller;
 
+/**
+ * @file View.java
+ * 
+ * @author Shira Ziv
+ * 
+ * @description This class represents an interface to the view.
+ * 				
+ * @date    02/09/2016
+ */
 public class MyView implements View 
 {
+	private BufferedReader in;
+	private PrintWriter out;
+	private CLI cli;
 	private Controller controller;
-	/**
-	 * Constractor
-	 * @param c- a controller.
-	 */
-	public MyView(Controller c)
-	{
-		this.controller = c;
+
+	public MyView(BufferedReader in, PrintWriter out) {
+		this.in = in;
+		this.out = out;
+				
+		cli = new CLI(in, out);
 	}
-	@Override
-	public void getUserCommand()
-	{
-		controller.execute("generate_maze maze 5 5 5");
+	
+	public void setController(Controller controller) {
+		this.controller = controller;
 	}
+
 	@Override
 	public void displayData(String str)
 	{
@@ -65,6 +80,18 @@ public class MyView implements View
 			System.out.println("your data is not known maze");
 		}
 	}
+	@Override
+	public void start() throws IOException {
+		// TODO Auto-generated method stub
+		cli.start();
+	}
+	@Override
+	public void setCommands(HashMap<String, Command> commands) {
+		cli.setCommands(commands);
+	}
+
+
+
 		
 		
 

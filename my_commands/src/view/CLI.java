@@ -1,6 +1,7 @@
 package view;
 
 import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -21,10 +22,10 @@ import Controller.Controller;
 */
 public class CLI
 {
-	
 	private BufferedReader in;
 	private PrintWriter out;
-	private Controller controller;
+	private HashMap<String, Command> commands;
+
 
 	/** 
 	   *CLI Constructor.
@@ -32,26 +33,46 @@ public class CLI
 	   * @param out - Output Source.
 	   * @param controller -  Controller.
 	  */
-	public CLI (BufferedReader in, PrintWriter out, Controller controller)
-	{
-		this.in = in;
-		this.out = out;
-		this.controller = controller;
-	}
 	
+	public CLI(BufferedReader in, PrintWriter out) {
+		this.in = in;
+		this.out = out;		
+	}
+	/**
+	 * The method represents a menu to the user.
+	 * return an arrayList which contains a command the user ask to execute.
+	 */
+	public ArrayList<String> getMenu() {
+		ArrayList<String> menu = new ArrayList<String>();
+		menu.add("Please enter command:");
+		menu.add("1. dir <path>");
+		menu.add("2. generate_maze <name> <xAxis> <yAxis> <zAxis>");
+		menu.add("3. display <name>");
+		menu.add("4. display_cross_section <index{X/Y/Z}> <name>");
+		menu.add("5. save_maze <name> <file name>");
+		menu.add("6. load_maze <file name> <name>");
+		menu.add("7. solve_maze <name> <algorithm>");
+		menu.add("8. display_solution <name>");
+		menu.add("9. exit");
+		return menu;
+	}
+	public void setCommands(HashMap<String, Command> commands) {
+		this.commands = commands;
+	}
+
 	/**
 	 * This function is running in a parallel thread and is responsible 
 	 * on getting commands from the user and mannage them.
 	 * 
 	 * @throws IOException
 	 */
-	public void start () throws IOException
+	public void start() throws IOException
 	{
 		Thread t = new Thread(new Runnable() {
 			
 		    @Override
 		    public void run() {
-	    		ArrayList<String> menu = controller.getMenu();
+	    		ArrayList<String> menu = getMenu();
 	    		String str = "";
 	    		do 
 				{
@@ -64,11 +85,23 @@ public class CLI
 						}
 						out.flush();
 						str = in.readLine();
-						controller.execute(str);			
-					} 
+						String arr[] = str.split(" ");
+						String command = arr[0];
+						if(!commands.containsKey(command)) {
+							out.println("Command doesn't exist");
+						}
+						else {
+							String[] args = null;
+							if (arr.length > 1) {
+								Command cmd = commands.get(command);
+								cmd.doCommand(arr);	
+							}
+						}
+					}
+				
 					catch (IOException e) 
 					{
-						controller.getMenu();
+						getMenu();
 						str = "";
 					}
 				} while (!str.equals("exit"));
@@ -80,7 +113,7 @@ public class CLI
 		t.join();
 		}
 		catch (Exception e) {
-			controller.getMenu();
+			getMenu();
 			String str = "";
 		}{
 			

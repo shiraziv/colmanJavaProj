@@ -1,4 +1,5 @@
 package model;
+import Controller.Controller;
 import mazeGenerator.*;
 import search.*;
 
@@ -79,4 +80,8 @@ public interface Model
 	 * @return - the solution instance
 	 */
 	public Solution getSolution(String name);
+	
+	public void exit();
+	
+	void setController(Controller controller);
 }

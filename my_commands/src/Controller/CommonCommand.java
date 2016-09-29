@@ -1,10 +1,15 @@
 package Controller;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.text.Position;
+
 import model.Model;
+import search.Solution;
 import view.View;
 /**
  * @file CommonCommand.java
+
  * 
  * @author Shira Ziv
  * 
@@ -22,8 +27,8 @@ public class CommonCommand
 	
 	private Model model;
 	private View view;
-	private HashMap<String, Command> commands = new HashMap<String, Command>();
 	private ArrayList<Thread> threads = new ArrayList<Thread>();
+	
 	
 	/**
 	 * An Constractor, using menu commands to initialize .
@@ -35,7 +40,9 @@ public class CommonCommand
 	{
 		this.model = model;
 		this.view = view;
-		
+	}
+	public HashMap<String, Command> getCommandsMap() {
+		HashMap<String, Command> commands = new HashMap<String, Command>();	
 		commands.put("dir", new DirCommand());
 		commands.put("generate_maze", new GenerateMaze());
 		commands.put("display", new Display());
@@ -45,38 +52,11 @@ public class CommonCommand
 		commands.put("solve_maze", new Solve());
 		commands.put("display_solution", new DisplaySolution());
 		commands.put("exit", new Exit());
-		
+		return commands;
 	}
 	
-	/**
-	 * The method executes the command we are getting as parameter. sends a massage if there is invalid massage.
-	 * @param commandLine- represents a command we need to do.
-	 */
-	public void executeCommand(String commandLine) {
-		String[] arguments = commandLine.split(" ");
-		Command cmd = commands.get(arguments[0]);
-		if (cmd == null)
-			throw new IllegalArgumentException("Invalid command");
-		cmd.doCommand(arguments);
-	}
-	/**
-	 * The method represents a menu to the user.
-	 * return an arrayList which contains a command the user ask to execute.
-	 */
-	public ArrayList<String> getMenu() {
-		ArrayList<String> menu = new ArrayList<String>();
-		menu.add("Please enter command:");
-		menu.add("1. dir <path>");
-		menu.add("2. generate_maze <name> <xAxis> <yAxis> <zAxis>");
-		menu.add("3. display <name>");
-		menu.add("4. display_cross_section <index{X/Y/Z}> <name>");
-		menu.add("5. save_maze <name> <file name>");
-		menu.add("6. load_maze <file name> <name>");
-		menu.add("7. solve_maze <name> <algorithm>");
-		menu.add("8. display_solution <name>");
-		menu.add("9. exit");
-		return menu;
-	}
+
+
 	/**
 	 * @file CommonCommand.java
 	 * 
@@ -257,10 +237,14 @@ public class CommonCommand
 		@Override
 		public void doCommand(String[] args) 
 		{
-			if (args.length == 2)
-				view.displayData(model.getSolution(args[1]));
-			else
-				view.displayData("generate_3d_maze command must contain 2 argument\n");			
+			if (args.length == 2){
+				Solution <Position> solution = model.getSolution(args[1]);
+				if(solution!=null)
+					view.displayData(solution);
+			}
+			else{
+				view.displayData(" command must contain 2 argument\n");			
+				}
 	}
 	}
 	/**
@@ -278,17 +262,7 @@ public class CommonCommand
 		@Override
 		public void doCommand(String[] args) 
 		{
-			closeAllThreads();
-		}
-	}
-	public void closeAllThreads()
-	{
-		for(Thread t : threads)
-		{
-			try {
-				t.join();
-			} catch (InterruptedException e) {
-			}
-		}
+			model.exit();
 	}
 	}
+}

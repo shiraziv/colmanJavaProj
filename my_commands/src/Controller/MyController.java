@@ -20,11 +20,12 @@ public class MyController implements Controller
 	private View view;
 	private Model model;
 	private CommonCommand commonCommand;
-	public void SetViewModel(View v, Model m)
-	{
-		this.view = v;
-		this.model = m;
-		commonCommand = new CommonCommand(model, view);
+	
+	public MyController(View view, Model model) {
+		this.view = view;
+		this.model = model;
+		CommonCommand commandsManager = new CommonCommand(model, view);
+		view.setCommands(commandsManager.getCommandsMap());
 	}
 	@Override
 	public void displayData(String[] str) 
@@ -32,23 +33,6 @@ public class MyController implements Controller
 		view.displayData(str);
 	}
 	
-	@Override
-	public void execute(String command) 
-	{
-		try
-		{
-			commonCommand.executeCommand(command);	
-		}
-		catch (IllegalArgumentException e) 
-		{
-			view.displayData("Wrong command");
-		}
-
-	}
-	public ArrayList<String> getMenu()
-	{
-		return commonCommand.getMenu();
-	}
 	@Override
 	public void display(String string) {
 		view.displayData(string);

@@ -16,12 +16,17 @@ public class Run {
 
 	public static void main(String[] args) throws IOException {
 
-		Controller controller = new MyController();
-		View view = new MyView(controller);
-		Model model = new MyModel(controller);
-		controller.SetViewModel(view, model);
-		CLI cli = new CLI(new BufferedReader(new InputStreamReader(System.in)),new PrintWriter(System.out),controller);
-		cli.start();
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter out = new PrintWriter(System.out);
+				
+		View view = new MyView(in, out);
+		Model model = new MyModel();
+		
+		Controller controller = new MyController(view, model);
+		view.setController(controller);
+		model.setController(controller);
+		
+		view.start();
 
 	}
 
