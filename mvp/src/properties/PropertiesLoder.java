@@ -1,6 +1,7 @@
 package properties;
 
 import java.beans.XMLDecoder;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +14,7 @@ import javax.xml.bind.Unmarshaller;
 
 public class PropertiesLoder {
 	
-	private static PropertiesLoder instance;
+private static PropertiesLoder instance;
 	
 	private Properties properties;
 	
@@ -41,7 +42,7 @@ public class PropertiesLoder {
 	
 	/***
 	 * returns the created instance of type PropertiesManager
-	 * @return
+	 * @return properties
 	 */
 	public static PropertiesLoder getInstance() {
 		if (instance == null) 

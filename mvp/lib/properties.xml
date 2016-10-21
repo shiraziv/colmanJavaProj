@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<properties>
+    <generationAlgorithm>GrowingTree</generationAlgorithm>
+    <name>Default</name>
+    <numOfThreads>8</numOfThreads>
+    <searchingAlgorithm>BFS</searchingAlgorithm>
+    <viewType>GUI</viewType>
+    <x>5</x>
+    <y>5</y>
+    <z>5</z>
+</properties>

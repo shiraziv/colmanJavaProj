@@ -1,7 +1,8 @@
 package model;
 
-import mazeGenerator.Maze3d;
-import search.Solution;
+
+import mazeGenerator.*;
+import search.*;
 
 /**
  * @file Model.java
@@ -82,4 +83,6 @@ public interface Model
 	public Solution getSolution(String name);
 	
 	public void exit();
+	
+	
 }

@@ -1,5 +1,20 @@
 package view;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Observer;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
+
+import mazeGenerator.Maze3d;
+import properties.PropertiesLoder;
+import search.Solution;
+
 /**
  * @file View.java
  * 
@@ -9,16 +24,6 @@ package view;
  * 				
  * @date    02/09/2016
  */
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Observable;
-import java.util.Observer;
-
-import mazeGenerator.Maze3d;
-import properties.PropertiesLoder;
-import search.Solution;
-
 public class MyView extends Observable implements View {
 	
 	private BufferedReader in;
@@ -54,66 +59,47 @@ public class MyView extends Observable implements View {
 		return null;
 	}
 	@Override
-	public void displayData(String[] str)
-	{
-		for (String string : str) 
-		{
-			displayData(string);
-		}
-		out.flush();
+	public void notifyMazeIsReady(String name) {
+		displayMessage("Maze " + name + " is ready!");
 	}
-	
-	@Override
-	public void displayData(int[][] arr)
-	{
-		for(int[] i : arr){
-			for(int j : i){
-				System.out.print(j+" ");
-			}
-			System.out.println("");
-		}
-		System.out.println("");
-		out.flush();
-	}
-	
-	@Override
-	public void displayData(Solution solution)
-	{
-		solution.print();
-		out.flush();
-	}
-	@Override
-	public void displayData(Maze3d maze) {
-		if(maze != null)
-		{
-			System.out.println(maze);
-			out.flush();
 
+	@Override
+	public void displayMaze(String name, Maze3d maze) {
+		if(cli == null){
+			this.mazeWindow.initMaze(name,maze);
+			this.mazeWindow.notifyMazeIsReady(name);
 		}
 		else {
-			System.out.println("your data is not known maze");
-			out.flush();
+		this.out.write(maze.toString());
+		out.flush();
 		}
 	}
 
+	public void start() {
+		if (cli != null)
+			cli.start();
+		else
+			mazeWindow.start();
+	}
 
 	@Override
-	public void sendCommand(String arg) {
+	public void displayMessage(String msg) {
+		if(cli == null){
+			MessageBox messageBox = new MessageBox(this.mazeWindow.shell, SWT.ICON_INFORMATION | SWT.OK );
+			messageBox.setText("Message");
+			messageBox.setMessage(msg);
+			messageBox.open();
+		}
+		else {
+			this.out.write(msg);
+			this.out.flush();
+		}
+	}
+	
+	@Override
+	public void sendCommand(String [] arg) {
 		setChanged();
 		notifyObservers(arg);
 	}
-
-	@Override
-	public void displayData(String str) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void start() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}	
-		
 
 }

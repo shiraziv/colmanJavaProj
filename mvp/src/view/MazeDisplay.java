@@ -26,16 +26,20 @@ import mazeGenerator.*;
 import properties.Properties;
 import properties.PropertiesLoder;
 //import utils.MyJaxbUtil;
-
-/***
- * MazeDisplay
+/**
+ * @file CommonCommand.java
+ * 
+ * @author Shira Ziv
+ * 
+ * @description This class represents mazeDisplay
+ * 
  * @param maze Maze3d Type
  * @param currPos Position Type
  * @param crossSection int[][] Type
- * 
- * @author ShiraZiv
- *
- */
+ * 				
+ * @date    02/09/2016
+ * */
+
 public class MazeDisplay extends Canvas {
 	
 	private int whichFloorAmI;
@@ -83,7 +87,7 @@ public class MazeDisplay extends Canvas {
 		this.downHint = new ArrayList<Point>();
 
 		// draw the maze
-				this.addPaintListener(new PaintListener() {
+		this.addPaintListener(new PaintListener() {
 					
 					@Override
 					public void paintControl(PaintEvent e) {
@@ -102,7 +106,6 @@ public class MazeDisplay extends Canvas {
 								x = j * cellWidth;
 								y = i * cellHeight;
 								if (crossSection[i][j] != 0)
-									//e.gc.fillRectangle(x, y, cellWidth, cellHeight);
 									e.gc.drawImage(imgWall, 0, 0, imgWall.getBounds().width, imgWall.getBounds().height, x, y, cellWidth, cellHeight);
 							}
 						}
@@ -163,22 +166,22 @@ public class MazeDisplay extends Canvas {
 			private void moveCharacter(char direction) {
 				switch(direction){
 				case 'r':
-					this.currPos = new Position(this.currPos.getX(), this.currPos.getY(), this.currPos.getZ()+1);
+					this.currPos = new Position(this.currPos.getZ(), this.currPos.getY(), this.currPos.getX()+1);
 					break;
 				case 'l':
-					this.currPos = new Position(this.currPos.getX(), this.currPos.getY(), this.currPos.getZ()-1);
+					this.currPos = new Position(this.currPos.getZ(), this.currPos.getY(), this.currPos.getX()-1);
 					break;
 				case 'd':
-					this.currPos = new Position(this.currPos.getX(), this.currPos.getY()+1, this.currPos.getZ());
+					this.currPos = new Position(this.currPos.getZ(), this.currPos.getY()+1, this.currPos.getX());
 					break;
 				case 'u':
-					this.currPos = new Position(this.currPos.getX(), this.currPos.getY()-1, this.currPos.getZ());
+					this.currPos = new Position(this.currPos.getZ(), this.currPos.getY()-1, this.currPos.getX());
 					break;
 				case 'o':
-					this.currPos = new Position(this.currPos.getX()+1, this.currPos.getY(), this.currPos.getZ());
+					this.currPos = new Position(this.currPos.getZ()+1, this.currPos.getY(), this.currPos.getX());
 					break;
 				case 'i':
-					this.currPos = new Position(this.currPos.getX()-1, this.currPos.getY(), this.currPos.getZ());
+					this.currPos = new Position(this.currPos.getZ()-1, this.currPos.getY(), this.currPos.getX());
 					break;
 				}
 				
@@ -246,6 +249,30 @@ public class MazeDisplay extends Canvas {
 			public void setCharacterPosition(Position pos) {
 				this.character.setPos(pos);
 				redrawMe();
+			}
+
+			public void moveRight(){
+				this.character.setPos(new Position(currPos.getZ(), currPos.getY(), currPos.getX()+1));
+			}
+			
+			public void moveLeft(){
+				this.character.setPos(new Position(currPos.getZ(), currPos.getY(), currPos.getX()-1));
+			}
+			
+			public void moveUp(){
+				this.character.setPos(new Position(currPos.getZ(), currPos.getY()-1, currPos.getX()));
+			}
+			
+			public void moveDown(){
+				this.character.setPos(new Position(currPos.getZ(), currPos.getY()+1, currPos.getX()));
+			}
+			
+			public void moveAbove(){
+				this.character.setPos(new Position(currPos.getZ()+1, currPos.getY(), currPos.getX()));
+			}
+			
+			public void moveBelow(){
+				this.character.setPos(new Position(currPos.getZ()-1, currPos.getY(), currPos.getX()));
 			}
 
 			public void moveToPosition(Position pos) {

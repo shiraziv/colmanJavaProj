@@ -2,13 +2,18 @@ package view;
 
 import java.util.Observable;
 
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-/***
- * BasicWindow
- * @author shiraziv
- *
- */
+/**
+ * @file CommonCommand.java
+ * 
+ * @author Shira Ziv
+ * 
+ * @description This class represents a basic window
+ * 				
+ * @date    02/09/2016
+ * */
 public abstract class BasicWindow extends Observable implements Runnable {
 
 	protected Display display;

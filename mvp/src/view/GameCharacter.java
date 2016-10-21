@@ -3,17 +3,22 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 
 import mazeGenerator.*;
+
 /**
- * Represents a charcter in a Maze3d game.
- * @author shira
- */
+ * @file CommonCommand.java
+ * 
+ * @author Shira Ziv
+ * 
+ * @description This class represents a charcter in a Maze3d game.
+ * 				
+ * @date    02/09/2016
+ * */
 public class GameCharacter {
 	private Position pos;
 	private Image img;
 	
 	public GameCharacter() {
-		this.img = new Image(null, "lib/images/pokemon.gif");
-//		this.pos = new Position(1,1,1);
+		this.img = new Image(null, "lib/images/pokemon.jpg");
 	}
 
 	public Image getImage(){

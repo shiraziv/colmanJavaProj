@@ -1,6 +1,7 @@
 package model;
 
 
+import java.io.ByteArrayOutputStream;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +12,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -21,13 +24,21 @@ import java.util.concurrent.Executors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import demo.Demo;
-import mazeGenerator.*;
-import search.*;
+import javax.swing.text.Position;
 import io.MyCompressorOutputStream;
 import io.MyDecompressorInputStream;
-import properties.*;
+import mazeGenerator.GrowingTreeGenerator;
+import mazeGenerator.Maze3d;
+import mazeGenerator.Maze3dGenerator;
+import mazeGenerator.SimpleMaze3dGenerator;
+import properties.Properties;
 import properties.PropertiesLoder;
+import search.BFS;
+import search.DFS;
+import search.Maze3dSearchable;
+import search.Searchable;
+import search.Searcher;
+import search.Solution;
 
 
 /**
@@ -39,66 +50,33 @@ import properties.PropertiesLoder;
  * 				
  * @date    02/09/2016
  */
-public class MyModel extends Observable implements Model 
+public class MyModel extends Observable implements Model
 {
 	private ExecutorService executor;
 	private HashMap<String, Maze3d> keeperMazes = new HashMap<String,Maze3d>();
 	private Map<String, Solution<Position>> solutions = new ConcurrentHashMap<String, Solution<Position>>();
 	private Properties properties;
 	
-	/**
-	 * Constractor
-	 * @param c- a model
-	 */
 	public MyModel() {
 		properties = PropertiesLoder.getInstance().getProperties();
 		executor = Executors.newFixedThreadPool(properties.getNumOfThreads());
 		loadSolutions();
-		
-	}
-	@Override
-	public void getDir(String path)
-	{
-		File file = new File(path);
-		if(file.exists())
-		{
-			setChanged();
-			notifyObservers(new File(path).list());
-		}
-		else
-		{
-			setChanged();
-			notifyObservers("This dir is not exist");
-		}
 	}
 	
 	@Override
-	public void generateMaze(String[] args)
+	public void getDir(String path)
 	{
-			String name = args[0];
-			int x,y,z;
-			z = Integer.parseInt(args[1]);
-			y = Integer.parseInt(args[2]);
-			x = Integer.parseInt(args[3]);
-			executor.submit(new Callable<Maze3d>() {
-
-				@Override
-				public Maze3d call() throws Exception {
-					GrowingTreeGenerator generator = new GrowingTreeGenerator();
-					Maze3d maze = generator.generate(z,y,x);
-					keeperMazes.put(name, maze);
-					
-					setChanged();
-					notifyObservers("maze_ready " + name);		
-					return maze;
-				}
-			});
+	File file = new File(path);
+	if(file.exists())
+	{
+		notifyObservers(new File(path).list());
 	}
-	@Override
-	public Maze3d getMaze(String string)
-	{	
-	 return keeperMazes.get(string);
+	else
+	{
+		notifyObservers("This dir is not exist");
 	}
+	}
+	
 	@Override
 	public int[][] getCross(String[] args)
 	{	
@@ -124,14 +102,12 @@ public class MyModel extends Observable implements Model
 				maze = keeperMazes.get(name).getCrossSectionByZ(0);
 				break;
 			default:
-				setChanged();
 				notifyObservers("Invalid parameter");
 		
 			}
 			
 			}catch (NumberFormatException e) {
 				
-				setChanged();
 				notifyObservers("Invalid parameters.");
 				
 			}
@@ -139,173 +115,123 @@ public class MyModel extends Observable implements Model
 			
 		}
 		else
-			setChanged();
-			notifyObservers("generate_3d_maze command must contain 3 argument\n");	
-		setChanged();
+			notifyObservers("generate_3d_maze command must contain 3 argument\n");		
 		return maze;
 	}
-	@Override
-	public void saveMaze(String[] args)
-	{
-		if(args.length == 3)
-		{
-			String name = args[1];
-			String fileName = args[2];
-			
-			Maze3d  tempMaze = this.keeperMazes.get(name);
-			
-			if(tempMaze != null)
-			{
-				try {
-					
-					byte[] mazeBytes = tempMaze.toByteArray();
-					OutputStream out;
-					try 
-					{
-						out = new MyCompressorOutputStream(new FileOutputStream(fileName));
-						out.write(mazeBytes);
-						out.flush();
-						out.close();
-						setChanged();
-					}catch (Exception e){ 
-						setChanged();
-						notifyObservers("general error");
-					}
-					
-					FileOutputStream fos = new FileOutputStream(fileName);
-					fos.write(tempMaze.toByteArray());
-					fos.close();							//compressing the maze into and writing it to the file.
-					setChanged();
-					notifyObservers(name + " maze saved to -> " + fileName + ".");
-					} catch (FileNotFoundException e) {
-						setChanged();
-						notifyObservers("wrong file path");
-					} catch (IOException e){
-						setChanged();
-						notifyObservers("general error");
-					}
-			}
-			else{
-				setChanged();
-				notifyObservers("you entered wrong maze or file");
-			}
-		}
-		else{
-			setChanged();
-			notifyObservers("save_maze command must contain 3 argument");	
-		}
-	}
-	@Override
-	public void loadMaze(String[] args)
-	{
-		if(args.length == 3)
-		{
-			String fileName  = args[1];
-			String mazeName = args[2];
-			InputStream in;
+	@SuppressWarnings("unchecked")
+	private void loadSolutions() {
+		File file = new File("solutions.dat");
+		if (!file.exists())
+			return;
+		
+		ObjectInputStream ois = null;
+		
 		try {
-			in = new MyDecompressorInputStream(new FileInputStream(fileName));
-			byte b[]=new byte[9000];
-			in.read(b);
-			
-			Maze3d loaded=new Maze3d(b);
-			keeperMazes.put(mazeName, loaded);
-			setChanged();
-			notifyObservers(fileName + " loaded ");
-			in.close();
-			} catch (Exception e) {
-				setChanged();
-				notifyObservers("you entered wrong file or name");
-				
+			ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream("solutions.dat")));
+			keeperMazes = (HashMap<String, Maze3d>)ois.readObject();
+			solutions = (HashMap<String, Solution<Position>>)ois.readObject();		
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			try {
+				ois.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		}
-
-		else{
-			setChanged();
-			notifyObservers("load_maze command must contain 3 argument ");
-			
-		}
+		}		
 	}
-
+	
+	@Override
+	public Solution<Position> getSolution(String name){
+		return this.solutions.get(name);
+	}
+	
 	@Override
 	public void solve(String[] args)
-	{	
-		executor.submit(new Callable<Solution>() {
-
-			@Override
-			public Solution call() throws Exception {
-			if(args.length == 3)
-			{
+	{		
+		if(args.length == 3)
+		{
+			executor.execute(new Runnable() {
 				String name = args[1];
 				String algorithm = args[2];
-				Searcher searcher = null;
-				Maze3d tempMaze = keeperMazes.get(name);
-				if(tempMaze !=null) 
-				{
+				@Override
+				public void run() {
+					Searcher<Position> searcher;
 					Searchable search = new Maze3dSearchable(keeperMazes.get(name));
-					switch (algorithm) 
-					{
-					case "BFS":
-						searcher =new BFS();
-						break;
-					case "DFS":
-						searcher =new DFS();
-						break;
+					if(properties.getSearchingAlgorithm().equals("BFS"))
+						searcher = new BFS<Position>();
+					else if(properties.getSearchingAlgorithm().equals("DFS"))
+						searcher = new DFS<Position>();
+					else{
+						notifyObservers("Invalid searching algorithms");
+						return;
 					}
-				solutions.put(name,searcher.search(search));	
-				return solutions.get(name);
-				}
-				else
-				{
+						
+					Solution<Position> sol = searcher.search(search);
+					solutions.put(name, sol);
+					
 					setChanged();
-					notifyObservers(name+ " maze is unavailable!");
-					return null;
+					notifyObservers("solved_maze " + name);	
+					
 				}
-				
-			}
 			
-			else{
-				setChanged();
-				notifyObservers("Missing parameters.");
-				return null;
-			}
-			
-		}	
-			
-		});
+			});
+		}
 	}
 
 	@Override
-	public Solution getSolution(String name) 
+	public void generateMaze(String[] args)
 	{
-		if(name != null)
+		if(args.length == 5)
 		{
-			if (keeperMazes.containsKey(name)){
-				Solution<Position> sol= solutions.get(name);
-				if(sol!=null)
-					return sol;
-				else{
-					setChanged();
-					notifyObservers("ERROR: there is no solution yet");
-					return null;
-				}
+			try {
+				String name = args[1];
+				int x,y,z;
+				z = Integer.parseInt(args[2]);
+				y = Integer.parseInt(args[3]);
+				x = Integer.parseInt(args[4]);
+				executor.submit(new Callable<Maze3d>() {
+
+					@Override
+					public Maze3d call() throws Exception {
+						Maze3dGenerator generator;
+						if(properties.getGenerationAlgorithm().equals("GrowingTree")){
+							generator = new GrowingTreeGenerator();
+						}
+						else {
+							generator = new SimpleMaze3dGenerator();
+						}
+						Maze3d maze = generator.generate(z,y,x);
+						keeperMazes.put(name, maze);
+						System.out.println(maze);
+						setChanged();
+						notifyObservers("maze_ready " + name);		
+						return maze;
+					}
+					
+				});
+			} catch (NumberFormatException e) {
+				
+				notifyObservers("Invalid parameters.");
 			}
-		else{
-			setChanged();
-			notifyObservers("ERROR: the maze doesn't exits");
-			return null;
 		}
-	}
-	else{
-		setChanged();
-		notifyObservers("Error: the maze name is empty");
-		return null;
-	}
-}
+			else
+				notifyObservers("generate_3d_maze command must contain 4 argument\n");	
+		}
+	
+	
 	@Override
-	public void exit() {
-		executor.shutdownNow();
-		saveSolutions();
+	public Maze3d getMaze(String string)
+	{	
+	 return keeperMazes.get(string);
 	}
 	
 	private void saveSolutions() {
@@ -330,38 +256,83 @@ public class MyModel extends Observable implements Model
 			}
 		}
 	}
-	@SuppressWarnings("unchecked")
-	private void loadSolutions() {
-		File file = new File("solutions.dat");
-		if (!file.exists())
-			return;
-		
-		ObjectInputStream ois = null;
-		
-		try {
-			ois = new ObjectInputStream(new GZIPInputStream(new FileInputStream("solutions.dat")));
-			keeperMazes = (HashMap<String, Maze3d>)ois.readObject();
-			solutions = (Map<String, Solution<Position>>)ois.readObject();			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally{
-			try {
-				ois.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	
+	public void exit() {
+		executor.shutdownNow();
+		saveSolutions();	
+	}
+	@Override
+	public void saveMaze(String[] args)
+	{
+		if(args.length == 3)
+		{
+			String name = args[1];
+			String fileName = args[2];
+			
+			Maze3d  tempMaze = this.keeperMazes.get(name);
+			
+			if(tempMaze != null)
+			{
+				try {
+					
+					byte[] mazeBytes = tempMaze.toByteArray();
+					OutputStream out;
+					try 
+					{
+						out = new MyCompressorOutputStream(new FileOutputStream(fileName));
+						out.write(mazeBytes);
+						out.flush();
+						out.close();
+					}catch (Exception e){ 
+						notifyObservers("general error");
+					}
+					
+					FileOutputStream fos = new FileOutputStream(fileName);
+					fos.write(tempMaze.toByteArray());
+					fos.close();							//compressing the maze into and writing it to the file.
+				
+					notifyObservers(name + " maze saved to -> " + fileName + ".");
+					} catch (FileNotFoundException e) {
+						notifyObservers("wrong file path");
+					} catch (IOException e){
+						notifyObservers("general error");
+					}
 			}
-		}		
+			else{
+				notifyObservers("you entered wrong maze or file");
+			}
+		}
+		else{
+			notifyObservers("save_maze command must contain 3 argument");	
+		}
 	}
 	
-	
+	@Override
+	public void loadMaze(String[] args)
+	{
+		if(args.length == 3)
+		{
+			String fileName  = args[1];
+			String mazeName = args[2];
+			InputStream in;
+		try {
+			in = new MyDecompressorInputStream(new FileInputStream(fileName));
+			byte b[]=new byte[9000];
+			in.read(b);
 			
-}
+			Maze3d loaded=new Maze3d(b);
+			keeperMazes.put(mazeName, loaded);
+			notifyObservers(fileName + " loaded ");
+			in.close();
+			} catch (Exception e) {
+				notifyObservers("you entered wrong file or name");
+				
+			}
+		}
 
+		else{
+			notifyObservers("load_maze command must contain 3 argument ");
+			
+		}
+	}
+}

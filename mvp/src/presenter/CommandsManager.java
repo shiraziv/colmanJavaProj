@@ -1,18 +1,18 @@
-package presenter;
+package Presenter;
 
 
 import java.util.ArrayList;
 
-
 import java.util.HashMap;
 
 import javax.swing.text.Position;
+
+import mazeGenerator.Maze3d;
 import model.Model;
 import search.Solution;
 import view.View;
 /**
  * @file CommonCommand.java
-
  * 
  * @author Shira Ziv
  * 
@@ -20,31 +20,26 @@ import view.View;
  * 				
  * @date    02/09/2016
  */
-/**
- * Manage commands according to the menu.
- * @author Shira Ziv
- *
- */
+
 public class CommandsManager
 {
 	
 	private Model model;
 	private View view;
 	private ArrayList<Thread> threads = new ArrayList<Thread>();
+	private HashMap<String, Command> commands = new HashMap<String, Command>();	
 	
+		
 	/**
 	 * An Constractor, using menu commands to initialize .
 	 * initialize model and view and the chosen command.
 	 * @param model- manages all the data and presents algorithms.
 	 * @param view- represents all the things which are presents to the user. 
 	 */
-	public CommandsManager(Model model, View view) 
-	{
+	public CommandsManager(Model model, View view) {
 		this.model = model;
 		this.view = view;
-	}
-	public HashMap<String, Command> getCommandsMap() {
-		HashMap<String, Command> commands = new HashMap<String, Command>();	
+		this.commands = new HashMap<String, Command>();
 		commands.put("dir", new DirCommand());
 		commands.put("generate_maze", new GenerateMaze());
 		commands.put("display", new Display());
@@ -54,11 +49,26 @@ public class CommandsManager
 		commands.put("solve_maze", new Solve());
 		commands.put("display_solution", new DisplaySolution());
 		commands.put("exit", new Exit());
-		return commands;
 	}
 	
 
+	public void executeCommand(String command){
+		// Parse message
+		String[] splitted = command.split(" ");
+		String cmd = splitted[0];			
+		// Check if there is no a string to command
+		if(!this.commands.containsKey(cmd)) { 
+			this.view.displayMessage("Command doesn't exist");			
+		}
+		else {
 
+			// Get and execute the command
+			commands.get(cmd).doCommand(splitted);; 
+		}
+	}
+	public HashMap<String, Command> getCommandsMap() {
+		return this.commands;
+	}
 	/**
 	 * @file CommonCommand.java
 	 * 
@@ -85,7 +95,7 @@ public class CommandsManager
 				model.getDir(args[1]);
 			}
 			else{
-				view.displayData("Invalid parameter");
+				view.displayMessage("Invalid parameter");
 			}
 		}	
 	}
@@ -108,13 +118,7 @@ public class CommandsManager
 		
 		    @Override
 		    public void run() {
-		    	try{	
 		    	model.generateMaze(args);
-		    	}
-		    	catch(NumberFormatException e)  
-				{  
-					view.displayData("Invalid parameters");
-				}
 		    }
 		  });
 		  threads.add(t);
@@ -137,11 +141,7 @@ public class CommandsManager
 		@Override
 		public void doCommand(String[] args) 
 		{	
-			if(model.getMaze(args[0])!= null)
-				view.displayData(model.getMaze(args[0]));
-			else
-				view.displayData("There is no maze to print");
-				
+			view.displayMaze(args[1],model.getMaze(args[1]));
 		}
 	}
 	/**
@@ -161,10 +161,10 @@ public class CommandsManager
 		{
 			int [][] array = model.getCross(args);
 			if (array != null){
-				view.displayData(array);
+				view.displayMessage(array.toString());
 			}
 			else {
-				view.displayData("you entered a wrong argument\n");
+				view.displayMessage("you entered a wrong argument\n");
 			}
 		
 	}
@@ -251,11 +251,9 @@ public class CommandsManager
 		{
 			if (args.length == 2){
 				Solution <Position> solution = model.getSolution(args[1]);
-				if(solution!=null)
-					view.displayData(solution);
 			}
 			else{
-				view.displayData(" command must contain 2 argument\n");			
+				view.displayMessage(" command must contain 2 argument\n");			
 				}
 	}
 	}

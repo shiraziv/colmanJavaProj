@@ -13,10 +13,16 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
 /**
- * Represents the GenerateWindow of Maze3d.
- * @author shira
- */
+ * @file CommonCommand.java
+ * 
+ * @author Shira Ziv
+ * 
+ * @description This class represents  the GenerateWindow of Maze3d.
+ * 				
+ * @date    02/09/2016
+ * */
 public class GenerateWindow extends DialogWindow {
 
 	public GenerateWindow(MyView view) {
@@ -25,44 +31,40 @@ public class GenerateWindow extends DialogWindow {
 	
 	@Override
 	protected void initWidgets() {
-		this.shell = new Shell(display, SWT.TITLE | SWT.CLOSE);
-		this.shell.setText("Generation Window");
-		this.shell.setLayout(new GridLayout(2, false));
-		this.shell.setSize(215, 215);
-//		this.shell.setBackgroundImage(new Image(null, "resources/images/backgroundSmall.png"));
-		this.shell.setBackgroundMode(SWT.INHERIT_DEFAULT);
-		
-		Rectangle bounds = display.getPrimaryMonitor().getBounds();
-		Rectangle rec = shell.getBounds();
-		int x = bounds.x + (bounds.width - rec.width) / 2;
-		int y = bounds.y + (bounds.height - rec.height) / 2;
-		shell.setLocation(x, y);
-		
-		Label floorsLabel = new Label(this.shell, SWT.NONE);
-		floorsLabel.setText("Floors:");
-		final Text floorsTxt = new Text(this.shell, SWT.BORDER);
-		floorsTxt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		Label rowsLabel = new Label(this.shell, SWT.NONE);
-		rowsLabel.setText("Rows: ");
-		final Text rowsTxt = new Text(this.shell, SWT.BORDER);
-		rowsTxt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		Label colsLabel = new Label(this.shell, SWT.NONE);
-		colsLabel.setText("Columns: ");
-		final Text colsTxt = new Text(this.shell, SWT.BORDER);
-		colsTxt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		Label nameLabel = new Label(this.shell, SWT.NONE);
-		nameLabel.setText("Name: ");
-		final Text nameTxt = new Text(this.shell, SWT.BORDER);
-		nameTxt.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		Button newGameButton = new Button(shell, SWT.PUSH);
-		newGameButton.setText("New Game");
-		newGameButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		
-		newGameButton.addSelectionListener(new SelectionListener() {
+		Shell GenerateShell = new Shell(display);
+
+		GenerateShell.setLayout(new  GridLayout(2, false));
+		Label lblName = new Label(GenerateShell, SWT.NONE);
+		lblName.setText("Maze name: ");
+		Text txtName = new Text(GenerateShell, SWT.BORDER);
+		txtName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+		Label lblFloors = new Label(GenerateShell, SWT.NONE);
+		lblFloors.setText("Floors: ");
+		Text txtFloors = new Text(GenerateShell, SWT.BORDER);
+		txtFloors.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+
+		Label lblRows = new Label(GenerateShell, SWT.NONE);
+		lblRows.setText("Rows: ");
+		Text txtRows = new Text(GenerateShell, SWT.BORDER);
+		txtRows.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+
+		Label lblColumns = new Label(GenerateShell, SWT.NONE);
+		lblColumns.setText("Columns: ");
+		Text txtColumns = new Text(GenerateShell, SWT.BORDER);
+		txtColumns.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		Button GenerateMaze = new Button(GenerateShell, SWT.PUSH);
+		GenerateShell.setDefaultButton(GenerateMaze);
+		GenerateMaze.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2, 1));
+		GenerateMaze.setText("Generate maze");
+
+		GenerateShell.setText("Generate Maze");
+		GenerateShell.setSize(400,250);
+		GenerateShell.open();
+
+		GenerateMaze.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -71,14 +73,14 @@ public class GenerateWindow extends DialogWindow {
 				int cols = 0;
 				String mazeName = null;
 				try {
-					floors = Integer.parseInt(floorsTxt.getText());
-					rows = Integer.parseInt(rowsTxt.getText());
-					cols = Integer.parseInt(colsTxt.getText());
-					mazeName = nameTxt.getText();
+					floors = Integer.parseInt(txtFloors.getText());
+					rows = Integer.parseInt(txtRows.getText());
+					cols = Integer.parseInt(txtColumns.getText());
+					mazeName = txtName.getText();
 				} catch (NullPointerException | NumberFormatException e) {
-					view.displayData("Invalid arguments.");
+					view.displayMessage("Invalid arguments.");
 				}
-				view.displayData("generate_maze " + mazeName + " " + floors + " " + rows + " " + cols);
+				view.displayMessage("generate_maze " + mazeName + " " + floors + " " + rows + " " + cols);
 				shell.dispose();
 			}
 
